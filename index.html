@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebSockets Testbed</title>
+    <style>
+    </style>
+</head>
+
+<body>
+    <h1>Sample</h1>
+
+    <script>
+        WSCreator();
+
+        async function getNewRoute() {
+            let path = "/this-shouldn't-be-possible";
+            let jsonData = '{"name":"xyz","ownerUuid":"69420","maxPlayers": 69,"isPrivate": false,"gamemode": 1}';
+
+            const response = await fetch('http://localhost:8080', {
+                method: 'POST',
+                body: jsonData,
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            const json = await response.json();
+            path = "/" + json.newServerPath;
+
+            console.log(path);
+            return path;
+        }
+        
+        async function WSCreator() {
+        const path = await getNewRoute();
+        const link = 'ws://localhost:8080' + path;
+        console.log(link);
+        const socket = new WebSocket(link);
+
+        // listener for established connections
+        socket.onopen = function (event) {
+            alert('Connection Established');
+        };
+
+        // listener for incoming communication
+        socket.onmessage = function (event) {
+            // TODO tests for all message types enabled by the backend
+        };
+
+        // listener for disconnects
+        socket.onclose = function (event) {
+            alert('Disconnected');
+        };
+        }
+
+    </script>
+</body>
+
+</html>
