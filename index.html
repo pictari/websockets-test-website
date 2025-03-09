@@ -11,19 +11,38 @@
 
 <body>
     <h1>Sample</h1>
+    <button onclick="sendMessage()">Send A Message</button>
 
     <script>
         WSCreator();
+        let socket;
+        let connected = false;
 
-        async function getNewRoute() {
+        async function getToken() {
+            let jsonData = '{"email":"darkarts420@gmail.com","password":"passwordlicious"}';
+            const response = await fetch('https://api.pictari.app/login', {
+                method: 'POST',
+                body: jsonData,
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            const json = await response.json();
+            return json.accessToken;
+        }
+
+        async function getNewRoute(token) {
+            // just for debugging
             let path = "/this-shouldn't-be-possible";
-            let jsonData = '{"name":"xyz","ownerUuid":"69420","maxPlayers": 69,"isPrivate": false,"gamemode": 1}';
+            let jsonData = '{"name":"xyz","maxPlayers": 69,"isPrivate": false,"gamemode": 1}';
 
             const response = await fetch('http://localhost:8080', {
                 method: 'POST',
                 body: jsonData,
                 headers: {
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer ' + token
                 }
             });
 
@@ -35,25 +54,37 @@
         }
         
         async function WSCreator() {
-        const path = await getNewRoute();
-        const link = 'ws://localhost:8080' + path;
-        console.log(link);
-        const socket = new WebSocket(link);
+        
+            const token = await getToken();
+            const path = await getNewRoute(token);
+            const link = 'ws://localhost:8080' + path + "?token=" + token;
+            console.log(link);
+            socket = new WebSocket(link);
 
-        // listener for established connections
-        socket.onopen = function (event) {
-            alert('Connection Established');
-        };
+            // listener for established connections
+            socket.onopen = function (event) {
+                alert('Connection Established');
+                connected = true;
+            };
 
-        // listener for incoming communication
-        socket.onmessage = function (event) {
-            // TODO tests for all message types enabled by the backend
-        };
+            // listener for incoming communication
+            socket.onmessage = function (event) {
+                console.log(event.data)
+                // TODO tests for all message types enabled by the backend
+            };
 
-        // listener for disconnects
-        socket.onclose = function (event) {
-            alert('Disconnected');
-        };
+            // listener for disconnects
+            socket.onclose = function (event) {
+                alert('Disconnected');
+            };
+        }
+
+        async function sendMessage() {
+            if(!connected) {
+                return;
+            }
+
+            socket.send(`{"command":0,"message":"hello"}`);
         }
 
     </script>
