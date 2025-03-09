@@ -12,6 +12,11 @@
 <body>
     <h1>Sample</h1>
     <button onclick="sendMessage()">Send A Message</button>
+    <button onclick="sendSettings()">Send New Settings</button>
+    <button onclick="sendStart()">Start Game</button>
+    <button onclick="sendDisband()">Disband</button>
+    <button onclick="sendReady()">Flip Readiness</button>
+    <button onclick="sendFinish()">Finish Game</button>
 
     <script>
         WSCreator();
@@ -70,12 +75,12 @@
             // listener for incoming communication
             socket.onmessage = function (event) {
                 console.log(event.data)
-                // TODO tests for all message types enabled by the backend
             };
 
             // listener for disconnects
             socket.onclose = function (event) {
                 alert('Disconnected');
+                connected = false;
             };
         }
 
@@ -85,6 +90,46 @@
             }
 
             socket.send(`{"command":0,"message":"hello"}`);
+        }
+
+        async function sendSettings() {
+            if(!connected) {
+                return;
+            }
+
+            socket.send(`{"command":1,"name":"zyx"}`);
+        }
+
+        async function sendStart() {
+            if(!connected) {
+                return;
+            }
+
+            socket.send(`{"command":2}`);
+        }
+
+        async function sendDisband() {
+            if(!connected) {
+                return;
+            }
+
+            socket.send(`{"command":3}`);
+        }
+
+        async function sendReady() {
+            if(!connected) {
+                return;
+            }
+
+            socket.send(`{"command":4}`);
+        }
+
+        async function sendFinish() {
+            if(!connected) {
+                return;
+            }
+
+            socket.send(`{"command":5}`);
         }
 
     </script>
